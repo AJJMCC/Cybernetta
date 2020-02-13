@@ -63,13 +63,18 @@ public class ManualBeats : MonoBehaviour
     void DetermineBeatAmount()
     {
         SecBetweenBeat = 60 / BPM;
-       
+
+        // this just sends the time between beats to god. 
+        BeatGod.instance.TimeBetweenBeatsGodVersion = SecBetweenBeat;
         float BeatTime = EndOfBeat - StartOfBeat;
         amountofBeats = Mathf.RoundToInt(BeatTime / SecBetweenBeat);
      
         beattimes = new float[amountofBeats];
         prebeattimes = new float[amountofBeats];
-        
+
+        //provide the amount of beats to the god
+        BeatGod.instance.BeatsInThisSong = new float[amountofBeats];
+
         Debug.Log(beattimes.Length);
     }
     void SetBeats()
@@ -79,6 +84,9 @@ public class ManualBeats : MonoBehaviour
         for (int BeatCurrentNumInLoop = 0; BeatCurrentNumInLoop < beattimes.Length; BeatCurrentNumInLoop++)
         {
             beattimes[BeatCurrentNumInLoop] = CurrentBeatTime;
+
+            //provide the amount of beats to the god
+            BeatGod.instance.BeatsInThisSong[BeatCurrentNumInLoop] = CurrentBeatTime;
             CurrentBeatTime += SecBetweenBeat;
         }
     }
@@ -137,6 +145,8 @@ public class ManualBeats : MonoBehaviour
             Switch();
             BeatCheckOnOff++;
         }
+        BeatGod.instance.CurrentDamage = ManualCube.transform.localScale.y;
+        BeatGod.instance.UniqueDamage = UniqueCube.transform.localScale.y;
     }
     void PreBeatCheck()
     {
