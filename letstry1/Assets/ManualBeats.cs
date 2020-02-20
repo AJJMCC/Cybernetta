@@ -36,6 +36,9 @@ public class ManualBeats : MonoBehaviour
     private bool Playing = false;
     private bool Beating = false;
     private float T;
+
+    private float DamageToSend;
+    private float UniqueDamageToSend;
     // Start is called before the first frame update
     void Start()
     {
@@ -58,14 +61,15 @@ public class ManualBeats : MonoBehaviour
             ManualCube.GetComponent<Renderer>().material.color = NoBeatColor;
             Beating = false;
         }
+
+        BeatGod.instance.IsSongBeating = Beating;
     }
 
     void DetermineBeatAmount()
     {
         SecBetweenBeat = 60 / BPM;
 
-        // this just sends the time between beats to god. 
-        BeatGod.instance.TimeBetweenBeatsGodVersion = SecBetweenBeat;
+       
         float BeatTime = EndOfBeat - StartOfBeat;
         amountofBeats = Mathf.RoundToInt(BeatTime / SecBetweenBeat);
      
@@ -74,7 +78,8 @@ public class ManualBeats : MonoBehaviour
 
         //provide the amount of beats to the god
         BeatGod.instance.BeatsInThisSong = new float[amountofBeats];
-
+        // this just sends the time between beats to god. 
+        BeatGod.instance.TimeBetweenBeatsGodVersion = SecBetweenBeat;
         Debug.Log(beattimes.Length);
     }
     void SetBeats()
@@ -123,30 +128,33 @@ public class ManualBeats : MonoBehaviour
 
     void Update()
     {
+        // update the time
         T = Time.time;
+
+        //the actual beat check
         PreBeatCheck();
-            if (UniqueBeatsPlayed < UniquePreBeats.Length)
-        UniqueBeatCheck();
+        // check for unique beats
+        if (UniqueBeatsPlayed < UniquePreBeats.Length)
+        { UniqueBeatCheck(); }
+
+        // send constants to the beat god
+        BeatGod.instance.CurrentDamage = DamageToSend / BeatScaleMax * 100 / 1;
+        BeatGod.instance.UniqueDamage = UniqueDamageToSend / BeatScaleMax * 100 / 1;
 
         CubeMovement();
-        
-    }
-    void CubeMovement()
-    {
-        if (Beating)
-        ManualCube.transform.Rotate(Vector3.up * RotScale);
 
-        RotScale = RotationSpeedMultiplier;
-       
-
-       
         if (T > OnOffBeatSwitches[BeatCheckOnOff])
-        {
+        { // check if the beat should be beating
             Switch();
             BeatCheckOnOff++;
         }
-        BeatGod.instance.CurrentDamage = ManualCube.transform.localScale.y;
-        BeatGod.instance.UniqueDamage = UniqueCube.transform.localScale.y;
+    }
+    void CubeMovement()
+    {   // flavour movement for cube
+        if (Beating)
+        { ManualCube.transform.Rotate(Vector3.up * RotScale); }
+        RotScale = RotationSpeedMultiplier;
+
     }
     void PreBeatCheck()
     {
@@ -177,7 +185,8 @@ public class ManualBeats : MonoBehaviour
 
         while (timer <= SecBetweenBeat)
         {
-            float CurrentCubeScale2 = BeatFloatCurve.Evaluate(timer / SecBetweenBeat);
+            float CurrentCubeScale2  = BeatFloatCurve.Evaluate(timer / SecBetweenBeat) ;
+            UniqueDamageToSend = CurrentCubeScale2;
             //Debug.Log(CurrentCubeScale);
             UniqueCube.transform.localScale = new Vector3(UniqueCube.transform.localScale.x, CurrentCubeScale2, UniqueCube.transform.localScale.z);
             UniqueCube.transform.localPosition = new Vector3(UniqueCube.transform.localPosition.x, -0.53f + (UniqueCube.transform.localScale.y / 2), UniqueCube.transform.localPosition.z);
@@ -193,7 +202,8 @@ public class ManualBeats : MonoBehaviour
 
         while (timer <= totaltime)
         {
-            float CurrentCubeScale = BeatFloatCurve.Evaluate(timer/ totaltime );
+            float CurrentCubeScale = BeatFloatCurve.Evaluate(timer/ totaltime ) ;
+            DamageToSend = CurrentCubeScale;
            // Debug.Log(CurrentCubeScale);
             ManualCube.transform.localScale = new Vector3(ManualCube.transform.localScale.x, CurrentCubeScale, ManualCube.transform.localScale.z) ;
             ManualCube.transform.localPosition = new Vector3(ManualCube.transform.localPosition.x, -0.53f + (ManualCube.transform.localScale.y / 2), ManualCube.transform.localPosition.z);
