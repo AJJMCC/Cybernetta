@@ -80,6 +80,7 @@ public class ManualBeats : MonoBehaviour
         BeatGod.instance.BeatsInThisSong = new float[amountofBeats];
         // this just sends the time between beats to god. 
         BeatGod.instance.TimeBetweenBeatsGodVersion = SecBetweenBeat;
+        BeatGod.instance.RealReloadMinTIme = (SecBetweenBeat * BeatGod.instance.ReloadMinPercentageOfBeat);
         Debug.Log(beattimes.Length);
     }
     void SetBeats()
@@ -163,6 +164,7 @@ public class ManualBeats : MonoBehaviour
         {
             //Debug.Log("Started Curve On PreBeat");
             StartCoroutine(BeatScaleChanger(SecBetweenBeat));
+            BeatGod.instance.CurrentBeatForChecks++;
             CurrentBeat++;
         }
 
